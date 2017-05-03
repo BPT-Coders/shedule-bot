@@ -1,23 +1,57 @@
-# -*- coding: utf-8 -*-
-import requests
+# -*- coding: utf-8
+ 
+#импорт необходимых библиотек
+import urllib
+import urllib2
+import cookielib
+import re
+import string
+ 
+host = 'http://gbou-bpt.ru/'
+user = 'student'
+pasw = '2011'
+ 
+#подготовка опенера с функцией обработки кукисов
+CookieJar = cookielib.CookieJar()
+opener = urllib2.build_opener(urllib2.HTTPCookieProcessor(CookieJar))
+ 
+#запрос страницы авторизации
+conn = urllib2.Request(host + '/component/user/')
+page = opener.open(conn).read()
+ 
+#получаем скрытые поля
+params = re.findall(r'name="([^"]+)" value="([^"]+)"', page)
+ 
+#Предварительная подготовка параметров для отправки POST-запроса
+params.append( ('username', user) )
+params.append( ('passwd', pasw) )
+params.append( ('remember', 'yes') )
+params.append( ('Submit', 'Войти') )
+params.append( ('option', 'com_user') )
+params.append( ('task', 'login') )
+buf = {}
+ident = ''
+for param in params:
+    buf[param[0]] = param[1]
 
-s = requests.Session()
+# Отправляем подготовленные параметры
+post = urllib.urlencode(buf)
+conn = urllib2.Request(host + 'component/user/', post)
+page = opener.open(conn).read()
+#print(page)
 
+# Считываем значение поля return, выполняющего роль тока
+params = re.findall(r'name="([^"]+)" value="([^"]+)"', page)
+buf = {}
+buf[params[2][0]] = params[2][1]
+#print(buf)
 
-url = "http://gbou-bpt.ru/component/user/"
-payload = {'username':'student', 'passwd':'0000', 'Submit':'Войти', 'option':'com_user', 'task':'login', 'return':'L2NvbXBvbmVudC91c2VyLw==', 'bbc437ee34e2cc7ad72714c82004fc6c':'1'}
-r = s.post(url, payload)
-print(r.text)
+# Запрашиваем страницу с расписанием, сообщая токен
+post = urllib.urlencode(buf)
+conn = urllib2.Request(host + 'uheba/raspisanie/5-raspisanie.html', post)
+page = opener.open(conn).read()
+#print(page)
 
-
-
-#s.get('http://httpbin.org/cookies/set/sessioncookie/123456789')
-#r = s.get('http://gbou-bpt.ru/uheba/raspisanie/5-raspisanie.html')
-
-#print(r.text)
-
-#url = "http://gbou-bpt.ru/uheba/raspisanie/5-raspisanie.html"
-#r = requests.get(url)
-
-#with open("requests_results.html", "w") as f:
-#    f.write(r.content)
+#Сохраняем файл
+with open("requests_results.html", "w") as f:
+    f.write(page)
