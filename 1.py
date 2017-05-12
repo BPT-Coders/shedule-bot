@@ -1,6 +1,7 @@
 # -*- coding: utf-8
  
 #импорт необходимых библиотек
+import subprocess
 import urllib
 import urllib2
 import cookielib
@@ -55,3 +56,9 @@ page = opener.open(conn).read()
 #Сохраняем файл
 with open("requests_results.html", "w") as f:
     f.write(page)
+subprocess.call('cp requests_results.html archive/`date +%Y-%m-%d`.html', shell=True)
+
+subprocess.call('php index.php 2', shell=True)
+subprocess.call('python 2.py 2', shell=True)
+subprocess.call('php index.php 3', shell=True)
+subprocess.call('python 2.py 3', shell=True)
