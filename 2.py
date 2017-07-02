@@ -3,6 +3,8 @@ import time
 import vk_api
 import sys
 
+# Рассылает сообщения с расписанием в вк
+
 f = open('group.html', 'r')
 message = f.read()
 print(message)
